@@ -60,30 +60,38 @@ echo -ne "[ ${green}INFO${NC} ] Check permission : "
 mkdir -p /var/lib/ >/dev/null 2>&1
 echo "IP=" >> /var/lib/ipvps.conf
 
+#!/bin/bash
+
 echo ""
 #wget -q https://raw.githubusercontent.com/rendyap100/sshmaxfix/main/tools.sh;chmod +x tools.sh;./tools.sh
 #rm tools.sh
-# Getting
+
+# Getting IP
 MYIP=$(wget -qO- ipinfo.io/ip);
+
 echo "Checking VPS"
-CEKEXPIRED () {
+
+CEKEXPIRED() {
     today=$(date -d +1day +%Y-%m-%d)
     Exp1=$(curl -sS https://raw.githubusercontent.com/rendyap100/sshmaxfix/main/izinnya | grep $MYIP | awk '{print $3}')
     if [[ $today < $Exp1 ]]; then
-    echo -e "\e[32mSTATUS SCRIPT AKTIF...\e[0m"
+        echo -e "\e[32mSTATUS SCRIPT AKTIF...\e[0m"
     else
-    echo -e "\e[31mSCRIPT ANDA EXPIRED!\e[0m";
+        echo -e "\e[31mSCRIPT ANDA EXPIRED!\e[0m";
+        exit 0
+    fi
+}
+
+IZIN=$(curl -sS https://raw.githubusercontent.com/rendyap100/sshmaxfix/main/izinnya | awk '{print $4}' | grep $MYIP)
+
+if [ "$MYIP" = "$IZIN" ]; then
+    echo -e "\e[32mPermission Accepted...\e[0m"
+    CEKEXPIRED
+else
+    echo -e "\e[31mPermission Denied!\e[0m";
     exit 0
 fi
-}
-izinnya=$(curl -sS https://raw.githubusercontent.com/rendyap100/sshmaxfix/main/izinnya | awk '{print $4}' | grep $MYIP)
-if [ $MYIP = $izinnya ]; then
-echo -e "\e[32mPermission Accepted...\e[0m"
-CEKEXPIRED
-else
-echo -e "\e[31mPermission Denied!\e[0m";
-exit 0
-fi
+
 
 function make_folder_xray() {
     rm -rf /etc/vmess/.vmess.db
